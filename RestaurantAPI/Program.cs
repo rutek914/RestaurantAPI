@@ -1,12 +1,16 @@
 // konfiguruje web app, np. wczytuje appsettings.json
 using Microsoft.EntityFrameworkCore;
+using NLog.Web;
 using RestaurantAPI.Entities;
 using RestaurantAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Dodanie NLog jako loggera
+builder.Logging.ClearProviders();
+builder.Host.UseNLog();
 
+// Add services to the container.
 builder.Services.AddControllers();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<RestaurantDbContext>(options => options.UseSqlServer(connectionString));

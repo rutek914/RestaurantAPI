@@ -13,10 +13,13 @@ namespace RestaurantAPI.Services
     {
         private readonly RestaurantDbContext _dbContext;
         private readonly IMapper _mapper;
-        public RestaurantService(RestaurantDbContext dbContext, IMapper mapper)
+        private readonly ILogger<RestaurantService> _logger;
+
+        public RestaurantService(RestaurantDbContext dbContext, IMapper mapper, ILogger<RestaurantService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
         public RestaurantDto GetById(int id)
         {
@@ -50,6 +53,28 @@ namespace RestaurantAPI.Services
             _dbContext.Restaurants.Add(restaurant);
             _dbContext.SaveChanges();
             return restaurant.Id;
+        }
+
+        public bool DeleteById(int id)
+        {
+            _logger.LogError($"Restaurant with id: {id} DELETE action invoked");
+
+            var resttaurant = _dbContext.Restaurants.FirstOrDefault(r => r.Id == id);
+            if (resttaurant is null) { return false; }
+            _dbContext.Restaurants.Remove(resttaurant);
+            _dbContext.SaveChanges();
+            return true;
+        }
+
+        public bool Update(int id, UpdateRestaurantDto dto)
+        {
+            var restaurant = _dbContext.Restaurants.FirstOrDefault(r => r.Id == id);
+            if (restaurant is null) { return false; }
+            restaurant.Name = dto.Name;
+            restaurant.Description = dto.Description;
+            restaurant.HasDelivery = dto.HasDelivery;
+            _dbContext.SaveChanges();
+            return true;
         }
     }
 }
